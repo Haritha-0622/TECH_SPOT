@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,12 +27,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Main Stylesheet (with cache-bust) -->
+  <link rel="stylesheet" href="style.css?v=6.0">
+  <script>
+    // Force light theme immediately on page load
+    document.documentElement.setAttribute('data-theme', 'light');
+    try {
+      localStorage.setItem('techspot_theme', 'light');
+    } catch(e) {}
+  </script>
 </head>
-<body>
-
-  <!-- Cyber Grid Background Accent -->
-  <div class="cyber-grid"></div>
+<body data-theme="light">
 
   <!-- ==========================================================================
        Header / Navigation Bar
@@ -43,7 +48,7 @@
       <!-- Brand Logo -->
       <a href="#home" class="nav-brand" id="brandLink">
         <div class="nav-logo-wrap">
-          <img src="assets/logo.svg" alt="Tech Spot Logo" width="44" height="44">
+          <img src="assets/logo.svg" alt="Tech Spot Logo" width="40" height="40">
         </div>
         <div class="brand-text-block">
           <span class="brand-title">TECH <span>SPOT</span></span>
@@ -54,24 +59,32 @@
       <!-- Navigation Links -->
       <ul class="nav-links" id="navLinks">
         <li><a href="#home" class="nav-link active">Home</a></li>
-        <li><a href="#mobile-services" class="nav-link" style="color: #34d399; font-weight: 700;"><i class="fa-solid fa-mobile-screen-button"></i> Mobile Repair</a></li>
-        <li><a href="#services" class="nav-link">All Services</a></li>
-        <li><a href="#estimator" class="nav-link">Repair Estimator</a></li>
+        <li><a href="#mobile-services" class="nav-link nav-link-mobile"><i class="fa-solid fa-mobile-screen"></i> Mobile Repair</a></li>
+        <li><a href="#services" class="nav-link">Services</a></li>
+        <li><a href="#estimator" class="nav-link">Estimator</a></li>
         <li><a href="#showcase" class="nav-link">Showcase</a></li>
         <li><a href="#reviews" class="nav-link">Reviews</a></li>
-        <li><a href="#contact" class="nav-link">Location & Hours</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
       </ul>
 
       <!-- Action Items & Live Store Status -->
       <div class="nav-actions">
         <!-- Live Open/Closed Status Badge -->
-        <div class="live-status-badge" id="liveStatusBadge">
+        <div class="live-status-badge" id="liveStatusBadge" title="Open 7 Days a week: 9:00 AM - 10:00 PM IST">
           <span class="status-dot"></span>
-          <span id="statusText">Open Now &bull; Closes 10:00 PM</span>
+          <span id="statusText" class="status-text-wrap">
+            <span class="status-full">Open Now &bull; Closes 10:00 PM</span>
+            <span class="status-compact">Open Now</span>
+          </span>
         </div>
 
-        <a href="tel:08838118304" class="btn btn-primary" id="headerCallBtn">
-          <i class="fa-solid fa-phone"></i> Call Now
+        <!-- Theme Switcher Toggle Button -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Light and Dark Theme" title="Switch Theme">
+          <i class="fa-solid fa-moon theme-icon"></i>
+        </button>
+
+        <a href="tel:08838118304" class="btn btn-primary btn-call-nav" id="headerCallBtn">
+          <i class="fa-solid fa-phone"></i> <span>Call Now</span>
         </a>
 
         <!-- Mobile Drawer Toggle -->
@@ -81,19 +94,51 @@
       </div>
     </div>
 
-    <!-- Mobile Slide-Down Drawer -->
+    <!-- Mobile Drawer Backdrop Overlay -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- Enhanced Mobile Slide-Out Drawer -->
     <div class="mobile-drawer" id="mobileDrawer">
-      <a href="#home" class="nav-link">Home</a>
-      <a href="#mobile-services" class="nav-link" style="color: #34d399;"><i class="fa-solid fa-mobile-screen-button"></i> Mobile Repair (Express)</a>
-      <a href="#services" class="nav-link">Computer & Laptop Services</a>
-      <a href="#services" class="nav-link">CCTV Camera Installation</a>
-      <a href="#estimator" class="nav-link">Quick Cost Estimator</a>
-      <a href="#showcase" class="nav-link">Workshop & Store Showcase</a>
-      <a href="#reviews" class="nav-link">Customer Reviews</a>
-      <a href="#contact" class="nav-link">Store Hours & Contact</a>
-      <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <a href="tel:08838118304" class="btn btn-primary" style="flex: 1;"><i class="fa-solid fa-phone"></i> Call</a>
-        <a href="https://wa.me/918838118304" target="_blank" class="btn btn-whatsapp" style="flex: 1;"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <img src="assets/logo.svg" alt="Tech Spot Logo" width="32" height="32">
+          <span>TECH <strong>SPOT</strong></span>
+        </div>
+        <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close Navigation Menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Theme Switcher in Mobile Drawer -->
+      <div class="drawer-theme-toggle-wrap">
+        <button class="drawer-theme-btn" id="drawerThemeBtn" aria-label="Toggle Theme">
+          <div class="drawer-theme-icon-wrap">
+            <i class="fa-solid fa-moon" id="drawerThemeIcon"></i>
+          </div>
+          <span class="drawer-theme-text" id="drawerThemeText">Dark Mode</span>
+          <span class="theme-pill-tag">Switch</span>
+        </button>
+      </div>
+
+      <div class="drawer-nav-list">
+        <a href="#home" class="drawer-nav-link"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="#mobile-services" class="drawer-nav-link highlight"><i class="fa-solid fa-mobile-screen"></i> Mobile Repair (Express)</a>
+        <a href="#services" class="drawer-nav-link"><i class="fa-solid fa-laptop"></i> Computer & Laptop Services</a>
+        <a href="#services" class="drawer-nav-link"><i class="fa-solid fa-video"></i> CCTV Surveillance Setup</a>
+        <a href="#estimator" class="drawer-nav-link"><i class="fa-solid fa-calculator"></i> Quick Repair Estimator</a>
+        <a href="#showcase" class="drawer-nav-link"><i class="fa-solid fa-images"></i> Workshop Showcase</a>
+        <a href="#reviews" class="drawer-nav-link"><i class="fa-solid fa-star"></i> Customer Reviews</a>
+        <a href="#faq" class="drawer-nav-link"><i class="fa-solid fa-circle-question"></i> Help & FAQs</a>
+        <a href="#contact" class="drawer-nav-link"><i class="fa-solid fa-location-dot"></i> Store Hours & Directions</a>
+      </div>
+
+      <div class="drawer-quick-actions">
+        <a href="tel:08838118304" class="btn btn-primary"><i class="fa-solid fa-phone"></i> Call Store</a>
+        <a href="https://wa.me/918838118304" target="_blank" class="btn btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+      </div>
+
+      <div class="drawer-timing-pill">
+        <i class="fa-solid fa-clock"></i> Open 7 Days: 9:00 AM – 10:00 PM
       </div>
     </div>
   </header>
@@ -114,11 +159,20 @@
           <h1 class="hero-title">
             The Complete Tech Hub for <span class="text-gradient">Computers, Laptops & Mobile Services</span>
           </h1>
+
+          <!-- Quick Service Indicator Pills -->
+          <div class="hero-tech-pills">
+            <span class="tech-pill"><i class="fa-solid fa-mobile-screen"></i> Mobile Phones</span>
+            <span class="tech-pill"><i class="fa-solid fa-laptop"></i> Laptops & Desktops</span>
+            <span class="tech-pill"><i class="fa-solid fa-video"></i> CCTV Surveillance</span>
+            <span class="tech-pill"><i class="fa-solid fa-print"></i> Printer Repairs</span>
+            <span class="tech-pill"><i class="fa-solid fa-microchip"></i> Chip-Level IC</span>
+          </div>
           
           <p class="hero-desc">
             Welcome to <strong>TECH SPOT</strong> — <em>One Solution For All</em>. We provide high-precision 
             <span class="hero-highlight-tag">mobile phone servicing</span>, laptop & desktop chip-level repairs, 
-            CCTV security surveillance setup, printer solutions, and certified genuine accessories.
+            CCTV security surveillance setup, printer solutions, and certified genuine accessories in Vandavasi.
           </p>
 
           <div class="hero-cta-group">
@@ -136,47 +190,74 @@
           <!-- Trust Metrics -->
           <div class="hero-stats">
             <div class="stat-item">
-              <span class="stat-num">5,000<span>+</span></span>
-              <span class="stat-label">Devices Serviced</span>
+              <div class="stat-icon-wrap"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+              <div class="stat-text-wrap">
+                <span class="stat-num">5,000<span>+</span></span>
+                <span class="stat-label">Devices Fixed</span>
+              </div>
             </div>
             <div class="stat-item">
-              <span class="stat-num">30<span>m</span></span>
-              <span class="stat-label">Express Mobile Fix</span>
+              <div class="stat-icon-wrap"><i class="fa-solid fa-bolt"></i></div>
+              <div class="stat-text-wrap">
+                <span class="stat-num">30<span>m</span></span>
+                <span class="stat-label">Express Fix</span>
+              </div>
             </div>
             <div class="stat-item">
-              <span class="stat-num">99.8<span>%</span></span>
-              <span class="stat-label">Happy Clients</span>
+              <div class="stat-icon-wrap"><i class="fa-solid fa-shield-heart"></i></div>
+              <div class="stat-text-wrap">
+                <span class="stat-num">99.8<span>%</span></span>
+                <span class="stat-label">Happy Clients</span>
+              </div>
             </div>
             <div class="stat-item">
-              <span class="stat-num">7<span>/</span>7</span>
-              <span class="stat-label">Days Open 9am-10pm</span>
+              <div class="stat-icon-wrap"><i class="fa-solid fa-store"></i></div>
+              <div class="stat-text-wrap">
+                <span class="stat-num">7<span>/</span>7</span>
+                <span class="stat-label">Open 9am-10pm</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Right Hero Visual Card -->
         <div class="hero-visual">
-          <div class="hero-card-stack">
+          <!-- Ambient Neon Aura Halo -->
+          <div class="hero-neon-aura"></div>
+
+          <div class="hero-card-stack" id="heroCardStack">
+            <!-- Live Workbench Status Beacon -->
+            <div class="hero-live-badge">
+              <span class="beacon-dot"></span>
+              <span>ESD-Safe Precision Lab Active</span>
+            </div>
+
             <img src="assets/images/repair-workbench.jpg" alt="Tech Spot Precision Repair Bench" class="hero-main-img">
             
-            <!-- Floating Highlights -->
-            <div class="hero-floating-card float-top">
+            <!-- Floating Highlights with Neon Accents -->
+            <div class="hero-floating-card float-top neon-green">
               <div class="float-icon green">
                 <i class="fa-solid fa-mobile-screen"></i>
               </div>
               <div class="float-text">
-                <h5>Mobile & Smartphone Care</h5>
+                <div class="float-header-row">
+                  <h5>Mobile & Smartphone Care</h5>
+                  <span class="float-tag green">30m Express</span>
+                </div>
                 <p>Screen & Battery Same-Day Replacement</p>
               </div>
             </div>
 
-            <div class="hero-floating-card float-bottom">
+            <div class="hero-floating-card float-bottom neon-blue">
               <div class="float-icon">
                 <i class="fa-solid fa-shield-halved"></i>
               </div>
               <div class="float-text">
-                <h5>100% Genuine Spares</h5>
-                <p>Warranty Included on All Services</p>
+                <div class="float-header-row">
+                  <h5>100% Genuine Spares</h5>
+                  <span class="float-tag blue">OEM Verified</span>
+                </div>
+                <p>Replacement Warranty on All Parts</p>
               </div>
             </div>
           </div>
@@ -232,7 +313,7 @@
                 <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
                 <div>
                   <p><strong>Display / Touch Screen Replacement</strong></p>
-                  <small style="color: #94a3b8;">Original OLED, AMOLED & IPS Displays</small>
+                  <small>Original OLED, AMOLED & IPS Displays</small>
                 </div>
               </div>
 
@@ -240,7 +321,7 @@
                 <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
                 <div>
                   <p><strong>Battery Drainage & Replacement</strong></p>
-                  <small style="color: #94a3b8;">High capacity batteries with warranty</small>
+                  <small>High capacity batteries with warranty</small>
                 </div>
               </div>
 
@@ -248,7 +329,7 @@
                 <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
                 <div>
                   <p><strong>Water Damage & Liquid Recovery</strong></p>
-                  <small style="color: #94a3b8;">Ultrasonic mother board chemical wash</small>
+                  <small>Ultrasonic motherboard chemical wash</small>
                 </div>
               </div>
 
@@ -256,7 +337,7 @@
                 <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
                 <div>
                   <p><strong>Charging Port, Mic & Speaker</strong></p>
-                  <small style="color: #94a3b8;">Fix no sound, slow charge & loose jacks</small>
+                  <small>Fix no sound, slow charge & loose jacks</small>
                 </div>
               </div>
 
@@ -264,7 +345,7 @@
                 <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
                 <div>
                   <p><strong>Motherboard Chip-Level Repair</strong></p>
-                  <small style="color: #94a3b8;">Power IC, CPU reballing, network IC</small>
+                  <small>Power IC, CPU reballing, network IC</small>
                 </div>
               </div>
 
@@ -272,14 +353,27 @@
                 <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
                 <div>
                   <p><strong>Software Flashing & Data Backup</strong></p>
-                  <small style="color: #94a3b8;">Bootloop fix, pattern unlock & OS update</small>
+                  <small>Bootloop fix, pattern unlock & OS update</small>
                 </div>
+              </div>
+            </div>
+
+            <!-- Interactive Symptom Picker -->
+            <div class="symptom-quick-select">
+              <span class="symptom-title"><i class="fa-solid fa-bolt" style="color: var(--primary-blue);"></i> Tap Your Device Issue for Instant Estimation:</span>
+              <div class="symptom-chips">
+                <button type="button" class="symptom-chip" data-issue="screen"><i class="fa-solid fa-mobile-screen"></i> Cracked Screen / Touch</button>
+                <button type="button" class="symptom-chip" data-issue="battery"><i class="fa-solid fa-battery-half"></i> Battery Drain / Dead</button>
+                <button type="button" class="symptom-chip" data-issue="water"><i class="fa-solid fa-droplet"></i> Water Dropped / Wet</button>
+                <button type="button" class="symptom-chip" data-issue="charging"><i class="fa-solid fa-plug"></i> Mic / Speaker / Jack</button>
+                <button type="button" class="symptom-chip" data-issue="board"><i class="fa-solid fa-microchip"></i> Dead Motherboard IC</button>
+                <button type="button" class="symptom-chip" data-issue="software"><i class="fa-solid fa-lock"></i> Bootloop / Pattern Unlock</button>
               </div>
             </div>
 
             <!-- Mobile Brands Pill Group -->
             <div style="margin-bottom: 1.5rem;">
-              <small style="display: block; margin-bottom: 6px; color: #94a3b8; font-weight: 600;">Models Serviced:</small>
+              <span class="symptom-title" style="margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);"><i class="fa-solid fa-tags" style="color: var(--primary-deep);"></i> Models Serviced:</span>
               <div class="mobile-brands-pill-group">
                 <span class="mini-pill">Apple iPhone</span>
                 <span class="mini-pill">Samsung Galaxy</span>
@@ -309,11 +403,11 @@
               <img src="assets/images/repair-workbench.jpg" alt="Mobile Phone Micro-Soldering in Vandavasi">
             </div>
             
-            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; gap: 14px;">
-              <i class="fa-solid fa-clock-rotate-left" style="font-size: 1.6rem; color: #10b981;"></i>
+            <div class="spotlight-express-box">
+              <i class="fa-solid fa-clock-rotate-left"></i>
               <div>
-                <strong style="color: #fff; font-size: 0.95rem;">Express 30-Minute Turnaround</strong>
-                <p style="font-size: 0.8rem; margin: 0; color: #cbd5e1;">Most screen, battery, and charging port repairs are completed on the spot while you wait!</p>
+                <strong>Express 30-Minute Turnaround</strong>
+                <p>Most screen, battery, and charging port repairs are completed on the spot while you wait!</p>
               </div>
             </div>
           </div>
@@ -353,8 +447,11 @@
         
         <!-- Service 1: Mobile Repair (Highlight) -->
         <div class="service-card highlight" data-category="mobile">
-          <div class="card-icon-box green">
-            <i class="fa-solid fa-mobile-screen"></i>
+          <div class="service-card-top">
+            <div class="card-icon-box green">
+              <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+            <span class="service-pill-tag green"><i class="fa-solid fa-bolt"></i> Popular</span>
           </div>
           <h3>Mobile Phone Sales & Service</h3>
           <p>Complete repair center for all smartphones. Screen replacement, battery replacement, IC level repair, and accessories.</p>
@@ -364,13 +461,19 @@
             <li><i class="fa-solid fa-check"></i> Water Damage Revival & IC Reballing</li>
             <li><i class="fa-solid fa-check"></i> Software Flashing, Unlocking & Reset</li>
           </ul>
-          <a href="#estimator" class="card-cta-link">Calculate Repair Cost <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="#estimator" class="card-cta-btn">
+            <span>Calculate Repair Cost</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
 
         <!-- Service 2: Computer & Laptop Sales & Service -->
         <div class="service-card" data-category="laptop">
-          <div class="card-icon-box">
-            <i class="fa-solid fa-laptop"></i>
+          <div class="service-card-top">
+            <div class="card-icon-box blue">
+              <i class="fa-solid fa-laptop"></i>
+            </div>
+            <span class="service-pill-tag blue"><i class="fa-solid fa-microchip"></i> Chip-Level</span>
           </div>
           <h3>Computer & Laptop Sales & Service</h3>
           <p>Sales of new & certified pre-owned laptops/desktops. Complete repair for Dell, HP, Lenovo, Acer, Asus & Apple MacBook.</p>
@@ -380,13 +483,19 @@
             <li><i class="fa-solid fa-check"></i> High-Speed NVMe SSD & RAM Upgrade</li>
             <li><i class="fa-solid fa-check"></i> Thermal Overheat Cleaning & Service</li>
           </ul>
-          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20Laptop/Computer%20service." target="_blank" class="card-cta-link">Book Laptop Service <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20Laptop/Computer%20service." target="_blank" class="card-cta-btn">
+            <span>Book Laptop Service</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
 
         <!-- Service 3: CCTV Installation -->
         <div class="service-card" data-category="cctv">
-          <div class="card-icon-box amber">
-            <i class="fa-solid fa-video"></i>
+          <div class="service-card-top">
+            <div class="card-icon-box amber">
+              <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="service-pill-tag amber"><i class="fa-solid fa-shield-halved"></i> Security</span>
           </div>
           <h3>CCTV Camera Installation</h3>
           <p>Professional security camera setup for homes, retail shops, offices, and institutions with Hikvision & CP Plus.</p>
@@ -396,13 +505,19 @@
             <li><i class="fa-solid fa-check"></i> Live Mobile Phone Streaming Setup</li>
             <li><i class="fa-solid fa-check"></i> Night Vision & Motion Detection Cameras</li>
           </ul>
-          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20am%20interested%20in%20CCTV%20Camera%20Installation." target="_blank" class="card-cta-link">Get CCTV Quote <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20am%20interested%20in%20CCTV%20Camera%20Installation." target="_blank" class="card-cta-btn">
+            <span>Get CCTV Quote</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
 
         <!-- Service 4: Printer & Scanner -->
         <div class="service-card" data-category="printer">
-          <div class="card-icon-box">
-            <i class="fa-solid fa-print"></i>
+          <div class="service-card-top">
+            <div class="card-icon-box purple">
+              <i class="fa-solid fa-print"></i>
+            </div>
+            <span class="service-pill-tag purple"><i class="fa-solid fa-print"></i> Precision</span>
           </div>
           <h3>Printer & Scanner Services</h3>
           <p>Reliable printer servicing, laser toner refilling, ink tank repairs, and print head restoration for Epson, HP & Canon.</p>
@@ -412,13 +527,19 @@
             <li><i class="fa-solid fa-check"></i> Print Head Clog Cleaning & Alignment</li>
             <li><i class="fa-solid fa-check"></i> Wi-Fi / Network Multi-User Printer Setup</li>
           </ul>
-          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20Printer%20service/refill." target="_blank" class="card-cta-link">Request Printer Service <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20Printer%20service/refill." target="_blank" class="card-cta-btn">
+            <span>Request Printer Service</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
 
         <!-- Service 5: Hardware & Software Services -->
         <div class="service-card" data-category="hardware">
-          <div class="card-icon-box">
-            <i class="fa-solid fa-gears"></i>
+          <div class="service-card-top">
+            <div class="card-icon-box cyan">
+              <i class="fa-solid fa-gears"></i>
+            </div>
+            <span class="service-pill-tag cyan"><i class="fa-solid fa-lock"></i> Confidential</span>
           </div>
           <h3>Software & Hardware Solutions</h3>
           <p>All-inclusive software troubleshooting, operating system reinstallation, antivirus protection, and data backup.</p>
@@ -428,13 +549,19 @@
             <li><i class="fa-solid fa-check"></i> Hard Drive & Flash Drive Data Recovery</li>
             <li><i class="fa-solid fa-check"></i> BIOS Reprogramming & Driver Updates</li>
           </ul>
-          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20Software%20or%20Hardware%20troubleshooting." target="_blank" class="card-cta-link">Book Diagnostic <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20Software%20or%20Hardware%20troubleshooting." target="_blank" class="card-cta-btn">
+            <span>Book Diagnostic</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
 
         <!-- Service 6: Accessories & Custom Builds -->
         <div class="service-card" data-category="hardware">
-          <div class="card-icon-box">
-            <i class="fa-solid fa-headphones"></i>
+          <div class="service-card-top">
+            <div class="card-icon-box pink">
+              <i class="fa-solid fa-headphones"></i>
+            </div>
+            <span class="service-pill-tag pink"><i class="fa-solid fa-gem"></i> Genuine Spares</span>
           </div>
           <h3>Genuine Accessories & Custom PCs</h3>
           <p>High quality laptop chargers, mobile fast chargers, tempered glass, gaming mice, keyboards, Wi-Fi routers & custom PC builds.</p>
@@ -444,7 +571,10 @@
             <li><i class="fa-solid fa-check"></i> Custom Gaming & Video Editing PC Rigs</li>
             <li><i class="fa-solid fa-check"></i> Networking Cables, Switches & Routers</li>
           </ul>
-          <a href="#contact" class="card-cta-link">Visit Store Today <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="#contact" class="card-cta-btn">
+            <span>Visit Store Today</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
 
       </div>
@@ -471,33 +601,60 @@
           <!-- Interactive Form Controls -->
           <div class="estimator-form">
             
+            <!-- Visual Device Chips for 1-Tap Selection -->
             <div class="form-group-custom">
-              <label for="estimatorDevice"><i class="fa-solid fa-tablet-screen-button"></i> 1. Select Device Type</label>
+              <label class="form-label"><i class="fa-solid fa-shapes"></i> Select Device Category:</label>
+              <div class="device-chips-bar" id="deviceChipsBar">
+                <button type="button" class="device-chip active" data-device="mobile">
+                  <i class="fa-solid fa-mobile-screen"></i>
+                  <span>Mobile</span>
+                </button>
+                <button type="button" class="device-chip" data-device="laptop">
+                  <i class="fa-solid fa-laptop"></i>
+                  <span>Laptop</span>
+                </button>
+                <button type="button" class="device-chip" data-device="desktop">
+                  <i class="fa-solid fa-desktop"></i>
+                  <span>Desktop</span>
+                </button>
+                <button type="button" class="device-chip" data-device="cctv">
+                  <i class="fa-solid fa-video"></i>
+                  <span>CCTV</span>
+                </button>
+                <button type="button" class="device-chip" data-device="printer">
+                  <i class="fa-solid fa-print"></i>
+                  <span>Printer</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group-custom">
+              <label for="estimatorDevice" class="form-label"><i class="fa-solid fa-layer-group"></i> Device Type</label>
               <select id="estimatorDevice" class="custom-select">
-                <option value="mobile" selected>📱 Mobile / Smartphone (All Brands)</option>
-                <option value="laptop">💻 Laptop (Dell, HP, Lenovo, Acer, etc.)</option>
-                <option value="desktop">🖥️ Desktop PC / Workstation</option>
-                <option value="cctv">📹 CCTV Security Surveillance System</option>
-                <option value="printer">🖨️ Printer & Scanner (Epson/HP/Canon)</option>
+                <option value="mobile" selected>Mobile / Smartphone (All Brands)</option>
+                <option value="laptop">Laptop (Dell, HP, Lenovo, Acer, etc.)</option>
+                <option value="desktop">Desktop PC / Workstation</option>
+                <option value="cctv">CCTV Security Surveillance System</option>
+                <option value="printer">Printer & Scanner (Epson/HP/Canon)</option>
               </select>
             </div>
 
             <div class="form-group-custom">
-              <label for="estimatorBrand"><i class="fa-solid fa-tag"></i> 2. Select Brand</label>
+              <label for="estimatorBrand" class="form-label"><i class="fa-solid fa-tag"></i> Select Brand</label>
               <select id="estimatorBrand" class="custom-select">
                 <!-- Dynamically populated via JS -->
               </select>
             </div>
 
             <div class="form-group-custom">
-              <label for="estimatorIssue"><i class="fa-solid fa-wrench"></i> 3. Select Primary Issue</label>
+              <label for="estimatorIssue" class="form-label"><i class="fa-solid fa-screwdriver-wrench"></i> Reported Issue / Service Needed</label>
               <select id="estimatorIssue" class="custom-select">
                 <!-- Dynamically populated via JS -->
               </select>
             </div>
 
-            <div style="background: rgba(0, 210, 255, 0.05); border: 1px dashed var(--border-glass); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.85rem; color: #94a3b8;">
-              <i class="fa-solid fa-circle-info" style="color: var(--primary-cyan);"></i> Free physical diagnosis at our store. Exact quote provided before starting repair work.
+            <div class="estimator-diagnosis-note">
+              <i class="fa-solid fa-circle-info"></i> Free physical diagnosis at our store. Exact quote provided before starting repair work.
             </div>
 
           </div>
@@ -505,7 +662,10 @@
           <!-- Calculated Output Card -->
           <div class="estimator-summary-card">
             <div class="summary-header">
-              <h4>Repair Forecast</h4>
+              <div>
+                <h4>Repair Forecast</h4>
+                <small class="summary-sub">Live Instant Calculation</small>
+              </div>
               <span class="summary-badge" id="resDevice">Mobile Phone</span>
             </div>
 
@@ -526,15 +686,24 @@
                 <span class="summary-label">Warranty:</span>
                 <span class="summary-val" id="resWarranty">3 to 6 Months</span>
               </div>
-              <div class="summary-row">
+              <div class="summary-row price-highlight-row">
                 <span class="summary-label">Estimated Price Guide:</span>
-                <span class="summary-val" style="color: #38bdf8;" id="resPrice">₹899 - ₹3,499</span>
+                <span class="summary-val price-val" id="resPrice">₹899 - ₹3,499</span>
               </div>
             </div>
 
-            <a href="https://wa.me/918838118304" target="_blank" class="btn btn-whatsapp btn-lg" id="whatsappBookBtn" style="width: 100%;">
-              <i class="fa-brands fa-whatsapp"></i> Confirm & Book on WhatsApp
-            </a>
+            <div class="estimator-benefits-pill">
+              <i class="fa-solid fa-shield-check"></i> Save up to 40% vs brand centers &bull; 100% Genuine Spares
+            </div>
+
+            <div class="estimator-card-ctas">
+              <a href="https://wa.me/918838118304" target="_blank" class="btn btn-whatsapp btn-lg" id="whatsappBookBtn">
+                <i class="fa-brands fa-whatsapp fa-lg"></i> Confirm & Book on WhatsApp
+              </a>
+              <button type="button" class="btn btn-outline" id="copyQuoteBtn">
+                <i class="fa-solid fa-copy"></i> Copy Quote Details
+              </button>
+            </div>
           </div>
 
         </div>
@@ -560,27 +729,30 @@
       <div class="gallery-grid">
         
         <!-- Showcase 1 -->
-        <div class="gallery-card">
+        <div class="gallery-card" data-img="assets/images/repair-workbench.jpg" data-caption="Chip-Level Repair Station: Precision microscope diagnosis for smartphone motherboards & laptop logic boards.">
           <img src="assets/images/repair-workbench.jpg" alt="Tech Spot Precision Repair Bench">
           <div class="gallery-overlay">
+            <span class="gallery-zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to Enlarge</span>
             <h4>Chip-Level Repair Station</h4>
             <p>Microscope diagnosis for smartphone motherboards & laptop logic boards.</p>
           </div>
         </div>
 
         <!-- Showcase 2 -->
-        <div class="gallery-card">
+        <div class="gallery-card" data-img="assets/images/cctv-security.jpg" data-caption="CCTV Surveillance Hub: Live security testing, remote IP streaming & DVR system configurations.">
           <img src="assets/images/cctv-security.jpg" alt="CCTV Security Installation Center">
           <div class="gallery-overlay">
+            <span class="gallery-zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to Enlarge</span>
             <h4>CCTV Surveillance Hub</h4>
             <p>Live security testing, remote IP streaming & DVR system configurations.</p>
           </div>
         </div>
 
         <!-- Showcase 3 -->
-        <div class="gallery-card">
+        <div class="gallery-card" data-img="assets/images/store-showcase.jpg" data-caption="Gadget & Laptop Showroom: New & certified refurbished laptops, gaming accessories, and genuine adapters.">
           <img src="assets/images/store-showcase.jpg" alt="Electronics and Laptop Showroom">
           <div class="gallery-overlay">
+            <span class="gallery-zoom-badge"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to Enlarge</span>
             <h4>Gadget & Laptop Showroom</h4>
             <p>New & certified refurbished laptops, gaming accessories, and genuine adapters.</p>
           </div>
@@ -733,6 +905,87 @@
   </section>
 
   <!-- ==========================================================================
+       Frequently Asked Questions (FAQ) Section
+       ========================================================================== -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      
+      <div class="section-head">
+        <span class="section-badge">Help & Clarifications</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">
+          Everything you need to know about our repair timeframes, genuine spares warranty, data security, and CCTV packages.
+        </p>
+      </div>
+
+      <div class="faq-accordion-grid" id="faqAccordion">
+        
+        <div class="faq-card">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span><i class="fa-solid fa-circle-question"></i> How fast can my smartphone screen or battery be repaired?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Most common repairs including screen/display changes, battery replacements, and charging jack repairs are completed in <strong>30 to 45 minutes</strong> directly in front of you while you wait!</p>
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span><i class="fa-solid fa-circle-question"></i> Do you provide warranties on replacement parts?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! We only use verified high-quality OEM and original components. Displays, batteries, laptop screens, and SSDs carry warranty ranging from <strong>3 months up to 3 years</strong> depending on the part.</p>
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span><i class="fa-solid fa-circle-question"></i> Is my personal phone and computer data safe?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely. We prioritize customer privacy. For hardware fixes (screens, batteries, hinges, keyboards), there is <strong>zero data wipe</strong>. Your photos, contacts, and WhatsApp chats stay 100% intact.</p>
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span><i class="fa-solid fa-circle-question"></i> Can you set up CCTV cameras for my house or shop?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes, we perform complete end-to-end CCTV installations across Vandavasi and surrounding areas using Hikvision & CP Plus HD/IP cameras with remote live mobile streaming on your phone.</p>
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span><i class="fa-solid fa-circle-question"></i> Can you fix a laptop that does not power on at all?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! We specialize in chip-level motherboard diagnosis, power IC replacement, short-circuit removal, and BIOS reprogramming for all brands including Dell, HP, Lenovo, Asus, Acer, and Apple MacBooks.</p>
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span><i class="fa-solid fa-circle-question"></i> What payment modes are accepted at Tech Spot?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer">
+            <p>We accept all modern digital payments including <strong>Google Pay (GPay), PhonePe, Paytm, UPI QR codes</strong>, Net Banking, and Cash.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
        Store Info, Business Hours & Location Map
        ========================================================================== -->
   <section class="contact-section" id="contact">
@@ -853,7 +1106,7 @@
           <div>
             <h4 style="margin-bottom: 0.8rem;">Send a Quick Inquiry</h4>
             <form onsubmit="handleQuickInquiry(event)" style="display: flex; flex-direction: column; gap: 10px;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="form-row-2col">
                 <input type="text" name="name" class="custom-input" placeholder="Your Name" required>
                 <input type="tel" name="phone" class="custom-input" placeholder="Phone Number" required>
               </div>
@@ -893,18 +1146,21 @@
             <div class="address-box">
               <i class="fa-solid fa-location-dot"></i>
               <div>
-                <strong style="color: #fff; font-size: 1.05rem; display: block; margin-bottom: 2px;">TECH SPOT (Verified Google Business)</strong>
-                <p>Kottaimollai, Kottai Moolai, Vandavasi, Tamil Nadu – 604408, India</p>
+                <strong class="map-store-title">TECH SPOT (Verified Google Business)</strong>
+                <p id="storeAddressText">Kottaimollai, Kottai Moolai, Vandavasi, Tamil Nadu – 604408, India</p>
               </div>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 0.5rem; flex-wrap: wrap;">
-              <a href="https://maps.app.goo.gl/Q3oFP2dc4ivAiPGN6?g_st=awb" target="_blank" class="btn btn-primary" style="flex: 1; min-width: 180px;">
-                <i class="fa-solid fa-diamond-turn-right"></i> Open in Google Maps
+              <a href="https://maps.app.goo.gl/Q3oFP2dc4ivAiPGN6?g_st=awb" target="_blank" class="btn btn-primary" style="flex: 1; min-width: 160px;">
+                <i class="fa-solid fa-diamond-turn-right"></i> Google Maps
               </a>
-              <a href="https://www.google.com/maps/dir/?api=1&destination=12.5070937,79.6056295" target="_blank" class="btn btn-outline" style="flex: 1; min-width: 160px;">
-                <i class="fa-solid fa-route"></i> Get Directions
+              <a href="https://www.google.com/maps/dir/?api=1&destination=12.5070937,79.6056295" target="_blank" class="btn btn-outline" style="flex: 1; min-width: 150px;">
+                <i class="fa-solid fa-route"></i> Directions
               </a>
+              <button type="button" class="btn btn-outline" id="copyAddressBtn" style="flex: 1; min-width: 150px;">
+                <i class="fa-solid fa-copy"></i> Copy Address
+              </button>
             </div>
           </div>
         </div>
@@ -998,9 +1254,9 @@
   </footer>
 
   <!-- ==========================================================================
-       Floating Quick-Action Buttons (WhatsApp & Call)
+       Floating Quick-Action Buttons (Desktop / Tablet)
        ========================================================================== -->
-  <div class="floating-action-bar">
+  <div class="floating-action-bar" id="floatingActionBar">
     <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20assistance%20with%20a%20repair." 
        target="_blank" 
        class="float-btn whatsapp" 
@@ -1016,7 +1272,56 @@
     </a>
   </div>
 
-  <!-- Scripts -->
-  <script src="app.js"></script>
+  <!-- ==========================================================================
+       Mobile Sticky Bottom Bar (Visible on <= 768px screens)
+       ========================================================================== -->
+  <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobile Quick Access Navigation">
+    <a href="tel:08838118304" class="bottom-bar-item" id="bottomCallBtn">
+      <i class="fa-solid fa-phone"></i>
+      <span>Call</span>
+    </a>
+    <a href="https://wa.me/918838118304?text=Hi%20Tech%20Spot!%20I%20need%20quick%20support%20for%20my%20device." target="_blank" class="bottom-bar-item whatsapp" id="bottomWhatsappBtn">
+      <i class="fa-brands fa-whatsapp"></i>
+      <span>WhatsApp</span>
+    </a>
+    <a href="#estimator" class="bottom-bar-item" id="bottomEstimatorBtn">
+      <i class="fa-solid fa-calculator"></i>
+      <span>Estimator</span>
+    </a>
+    <a href="https://maps.app.goo.gl/Q3oFP2dc4ivAiPGN6?g_st=awb" target="_blank" class="bottom-bar-item" id="bottomMapBtn">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>Directions</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       Interactive Gallery Lightbox Modal
+       ========================================================================== -->
+  <div class="lightbox-modal" id="galleryLightbox" role="dialog" aria-modal="true" aria-label="Image Preview" style="display: none;">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <div class="lightbox-dialog">
+      <button class="lightbox-close-btn" id="lightboxCloseBtn" aria-label="Close Preview">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="lightbox-media-wrap">
+        <img src="" alt="Tech Spot Workshop" id="lightboxImg" class="lightbox-img">
+      </div>
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+  </div>
+
+  <!-- Back To Top Button -->
+  <button class="back-to-top-btn" id="backToTopBtn" aria-label="Scroll back to top">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <!-- Toast Notification -->
+  <div class="toast-notification" id="toastNotification">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMessage">Address copied to clipboard!</span>
+  </div>
+
+  <!-- Scripts (with cache-bust) -->
+  <script src="app.js?v=6.0"></script>
 </body>
 </html>
